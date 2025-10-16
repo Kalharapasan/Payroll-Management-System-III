@@ -10,9 +10,10 @@ import { v4 as uuidv4 } from 'uuid';
 dotenv.config();
 
 const app = express();
-const PORT = process.env.PORT || 5174; // separate from Vite dev (5173)
+const PORT = process.env.PORT || 5177; // separate from Vite dev server
 
-app.use(cors({ origin: /http:\/\/localhost:5173$/, credentials: false }));
+// Allow any localhost port during development (e.g., 5173, 5174, 5176)
+app.use(cors({ origin: /^http:\/\/localhost:\d+$/, credentials: false }));
 app.use(express.json());
 
 // Database init and pool holder
