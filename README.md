@@ -21,6 +21,8 @@ A comprehensive, modern payroll management system built with React, TypeScript, 
 - [Future Enhancements](#future-enhancements)
 - [Troubleshooting](#troubleshooting)
 - [License](#license)
+- [Contributing](#contributing)
+- [Support](#support)
 
 ## ✨ Features
 
@@ -737,11 +739,23 @@ All rights reserved. This software and associated documentation files are propri
 
 ## 👨‍💻 Contributing
 
-This is a proprietary project. For any questions or issues, please contact the development team.
+This is a proprietary project. External pull requests may not be accepted.
+
+For issues and ideas, please use the templates below:
+
+- [Report Bug](https://github.com/Kalharapasan/Payroll-Management-System-III/issues/new?template=bug_report.md)
+- [Request Feature](https://github.com/Kalharapasan/Payroll-Management-System-III/issues/new?template=feature_request.md)
+
+For other questions, please contact the development team.
 
 ## 📧 Support
 
-For technical support or feature requests, please create an issue in the repository or contact the development team.
+Need help or want to propose an idea?
+
+- Use [Report Bug](https://github.com/Kalharapasan/Payroll-Management-System-III/issues/new?template=bug_report.md) for problems you encounter
+- Use [Request Feature](https://github.com/Kalharapasan/Payroll-Management-System-III/issues/new?template=feature_request.md) for enhancements
+
+Alternatively, contact the development team directly.
 
 ## 🙏 Acknowledgments
 
