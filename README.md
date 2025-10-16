@@ -161,7 +161,9 @@ Steps (Windows PowerShell):
 4) Install API deps and start server:
 
 ```
-cd server; npm install; npm run dev
+cd server
+npm install
+npm run dev
 ```
 
 It will serve at http://localhost:5174
@@ -169,7 +171,8 @@ It will serve at http://localhost:5174
 5) Start Vite dev server in the root (new terminal):
 
 ```
-npm install; npm run dev
+npm instal
+npm run dev
 ```
 
 Vite dev server proxies `/api` to the API server. If `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` are not set, the frontend will use the MySQL API automatically.
