@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
 import { Employee, Department } from '../types';
-import { calculatePayroll, formatCurrency, generateReferenceNo } from '../utils/calculations';
+import { generateReferenceNo } from '../utils/calculations';
 import { supabase } from '../lib/supabase';
+import api, { isSupabaseConfigured } from '../lib/api';
 
 interface EmployeeModalProps {
   isOpen: boolean;
@@ -49,8 +50,14 @@ export function EmployeeModal({ isOpen, onClose, onSave, employee, mode }: Emplo
   }, [employee, mode]);
 
   const fetchDepartments = async () => {
-    const { data } = await supabase.from('departments').select('*').order('name');
-    if (data) setDepartments(data);
+    if (isSupabaseConfigured && supabase) {
+      const { data } = await supabase.from('departments').select('*').order('name');
+      if (data) setDepartments(data as Department[]);
+    } else {
+      // Minimal fallback: build departments from employees' existing department_id is not ideal.
+      // For MySQL mode, you can extend the API to expose /departments if needed.
+      setDepartments([]);
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -134,7 +141,7 @@ export function EmployeeModal({ isOpen, onClose, onSave, employee, mode }: Emplo
                 <input
                   type="text"
                   name="reference_no"
-                  value={formData.reference_no}
+                  value={formData.reference_no || ''}
                   onChange={handleChange}
                   disabled={isViewMode}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100 font-mono"
