@@ -37,6 +37,79 @@
         ];
     }
 
+    function s($v) { return htmlspecialchars((string)$v, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8'); }
+
+    $all_fields = [
+        'employee_name','address','postcode','gender','reference_no','employer','emp_address','tax_period','tax_code','pay_date',
+        'inner_city','basic_salary','overtime','gross_pay','taxable_pay','pensionable_pay','student_loan','ni_payment','deduction','net_pay',
+        'tax_todate','pension_todate','student_ref','ni_code','ni_number','ref_note'
+    ];
+
+    $errors = [];
+    $messages = [];
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        $action = $_POST['action'] ?? '';
+
+        if ($action === 'add' || $action === 'update') {
+            $data = [];
+            foreach ($all_fields as $f) {
+                $data[$f] = $_POST[$f] ?? null;
+            }
+
+            if (empty(trim($data['employee_name'] ?? ''))) $errors[] = 'Employee name is required.';
+            if (!in_array(strtolower($data['gender']), ['m','f',''], true)) $data['gender'] = null;
+
+       
+            $data['inner_city'] = str_replace(',', '', $data['inner_city'] ?: 0);
+            $data['basic_salary'] = str_replace(',', '', $data['basic_salary'] ?: 0);
+            $data['overtime'] = str_replace(',', '', $data['overtime'] ?: 0);
+
+            if (empty($errors)) {
+                $calc = calc_from_components($data['inner_city'], $data['basic_salary'], $data['overtime']);
+              
+                $data = array_merge($data, $calc);
+
+                try {
+                    if ($action === 'add') {
+                        $cols = array_keys($data);
+                        $placeholders = array_map(function($c){ return ':' . $c; }, $cols);
+                        $sql = 'INSERT INTO employees (' . implode(',', $cols) . ') VALUES (' . implode(',', $placeholders) . ')';
+                        $stmt = $pdo->prepare($sql);
+                        $stmt->execute($data);
+                        $messages[] = 'Employee added successfully.';
+                    } else {
+                        $id = (int)($_POST['id'] ?? 0);
+                        if ($id <= 0) throw new Exception('Invalid employee id for update.');
+                        $sets = array_map(function($c){ return "$c=:$c"; }, array_keys($data));
+                        $sql = 'UPDATE employees SET ' . implode(',', $sets) . ' WHERE id = :id';
+                        $stmt = $pdo->prepare($sql);
+                        $data_with_id = $data; $data_with_id['id'] = $id;
+                        $stmt->execute($data_with_id);
+                        $messages[] = 'Employee updated successfully.';
+                    }
+                } catch (Exception $e) {
+                    $errors[] = 'Database error: ' . $e->getMessage();
+                }
+            }
+        } elseif ($action === 'delete') {
+            $id = (int)($_POST['id'] ?? 0);
+            if ($id > 0) {
+                try {
+                    $stmt = $pdo->prepare('DELETE FROM employees WHERE id = :id');
+                    $stmt->execute(['id' => $id]);
+                    $messages[] = 'Employee deleted.';
+                } catch (Exception $e) {
+                    $errors[] = 'Delete failed: ' . $e->getMessage();
+                }
+            } else {
+                $errors[] = 'Invalid id for deletion.';
+            }
+        }
+    }
+
+
+    
+
 
 ?>
 
