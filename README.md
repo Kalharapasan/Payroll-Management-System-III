@@ -24,8 +24,6 @@ A comprehensive, modern payroll management system built with React, TypeScript, 
 
 ## ✨ Features
 
-## ✨ Features
-
 ### 👥 Employee Management
 - ➕ **CRUD Operations**: Add, edit, view, and delete employee records
 - 📊 **Comprehensive Profiles**: Track personal information, contact details, and employment status
@@ -242,10 +240,28 @@ Net Pay = £3,550 - £685.15 = £2,864.85
 ### Prerequisites
 
 - **XAMPP** (or any MySQL server)
-- **Node.js** (v18 or higher)
-- **npm** or **yarn**
+- **Node.js** (v18 or higher recommended)
+- **npm** (comes with Node.js)
 
-### 📝 Step-by-Step Installation
+### ⚡ Quick Start
+
+```powershell
+# 1. Start MySQL in XAMPP Control Panel
+
+# 2. Start Backend API
+cd server
+npm install
+npm run dev
+
+# 3. Start Frontend (in a new terminal)
+cd client
+npm install
+npm run dev
+
+# 4. Open browser to http://localhost:5173
+```
+
+### 📝 Detailed Installation Steps
 
 #### 1️⃣ Start MySQL Server
 
@@ -293,7 +309,8 @@ The API will run at `http://localhost:5177`
 
 **Terminal 2 - Frontend:**
 ```powershell
-# From project root
+# From project root, navigate to client folder
+cd client
 npm install
 npm run dev
 ```
@@ -339,25 +356,31 @@ This will create:
 
 ```
 PMS_III/
-├── 📂 src/                          # Frontend source code
-│   ├── 📂 components/               # React components
-│   │   ├── Dashboard.tsx            # Main dashboard with statistics
-│   │   ├── EmployeeTable.tsx        # Employee list and management
-│   │   ├── EmployeeModal.tsx        # Add/Edit employee form
-│   │   └── PayslipModal.tsx         # Payslip generation form
-│   ├── 📂 hooks/                    # Custom React hooks
-│   │   ├── useEmployees.ts          # Employee data management
-│   │   └── usePayslips.ts           # Payslip data management
-│   ├── 📂 lib/                      # Utility libraries
-│   │   ├── api.ts                   # API client functions
-│   │   └── supabase.ts              # (Legacy - not used)
-│   ├── 📂 types/                    # TypeScript type definitions
-│   │   └── index.ts                 # Shared type interfaces
-│   ├── 📂 utils/                    # Utility functions
-│   │   └── calculations.ts          # Payroll calculation logic
-│   ├── App.tsx                      # Main application component
-│   ├── main.tsx                     # Application entry point
-│   └── index.css                    # Global styles and Tailwind
+├── 📂 client/                       # Frontend application
+│   ├── 📂 src/                      # Frontend source code
+│   │   ├── 📂 components/           # React components
+│   │   │   ├── Dashboard.tsx        # Main dashboard with statistics
+│   │   │   ├── EmployeeTable.tsx    # Employee list and management
+│   │   │   ├── EmployeeModal.tsx    # Add/Edit employee form
+│   │   │   └── PayslipModal.tsx     # Payslip generation form
+│   │   ├── 📂 hooks/                # Custom React hooks
+│   │   │   ├── useEmployees.ts      # Employee data management
+│   │   │   └── usePayslips.ts       # Payslip data management
+│   │   ├── 📂 lib/                  # Utility libraries
+│   │   │   ├── api.ts               # API client functions
+│   │   │   └── supabase.ts          # (Legacy - not used)
+│   │   ├── 📂 types/                # TypeScript type definitions
+│   │   │   └── index.ts             # Shared type interfaces
+│   │   ├── 📂 utils/                # Utility functions
+│   │   │   └── calculations.ts      # Payroll calculation logic
+│   │   ├── App.tsx                  # Main application component
+│   │   ├── main.tsx                 # Application entry point
+│   │   └── index.css                # Global styles and Tailwind
+│   ├── 📄 vite.config.ts            # Vite configuration with proxy
+│   ├── 📄 tailwind.config.js        # Tailwind CSS configuration
+│   ├── 📄 tsconfig.json             # TypeScript configuration
+│   ├── 📄 package.json              # Frontend dependencies
+│   └── 📄 index.html                # HTML entry point
 │
 ├── 📂 server/                       # Backend API
 │   ├── index.js                     # Express server and API routes
@@ -370,10 +393,6 @@ PMS_III/
 ├── 📂 supabase/                     # Legacy (not in use)
 │   └── migrations/                  # Old migration files
 │
-├── 📄 vite.config.ts                # Vite configuration with proxy
-├── 📄 tailwind.config.js            # Tailwind CSS configuration
-├── 📄 tsconfig.json                 # TypeScript configuration
-├── 📄 package.json                  # Frontend dependencies
 └── 📄 README.md                     # This file
 ```
 
@@ -681,12 +700,13 @@ taskkill /PID <PID> /F
 **Solution:**
 ```powershell
 # Delete node_modules and reinstall (Frontend)
+cd client
 Remove-Item -Recurse -Force node_modules
 Remove-Item package-lock.json
 npm install
 
 # Delete node_modules and reinstall (Backend)
-cd server
+cd ..\server
 Remove-Item -Recurse -Force node_modules
 Remove-Item package-lock.json
 npm install
@@ -698,13 +718,14 @@ npm install
 
 If you need to configure a custom API base URL:
 
-1. Create a `.env` file in the project root
+1. Create a `.env` file in the `client` folder
 2. Add:
    ```env
    VITE_API_BASE_URL=http://localhost:5177/api
    ```
 3. Restart the development server:
    ```powershell
+   cd client
    npm run dev
    ```
 
@@ -734,7 +755,7 @@ For technical support or feature requests, please create an issue in the reposit
 
 - **Version:** 1.0.0
 - **Status:** Active Development
-- **Last Updated:** October 2025
+- **Last Updated:** October 16, 2025
 
 ---
 
