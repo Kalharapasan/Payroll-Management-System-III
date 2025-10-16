@@ -18,6 +18,7 @@ A comprehensive, modern payroll management system built with React, TypeScript, 
 - [Getting Started](#getting-started-local-mysql--api)
 - [Project Structure](#project-structure)
 - [API Documentation](#api-documentation)
+ - [Screenshots](#screenshots)
 - [Future Enhancements](#future-enhancements)
 - [Troubleshooting](#troubleshooting)
 - [License](#license)
@@ -565,7 +566,20 @@ All endpoints return appropriate HTTP status codes:
 }
 ```
 
-## 🔮 Future Enhancements
+## �️ Screenshots
+
+> Note: Images are referenced from `docs/screenshots/`. Add your files with these names so they render on GitHub.
+
+### Dashboard
+![Dashboard](docs/screenshots/dashboard.png)
+
+### Employees
+![Employees](docs/screenshots/employees.png)
+
+### Payslips
+![Payslips](docs/screenshots/payslips.png)
+
+## �🔮 Future Enhancements
 
 ### Planned Features
 
