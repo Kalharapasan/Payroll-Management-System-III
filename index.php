@@ -34,6 +34,8 @@
             'ni_payment' => round($ni, 2),
             'deduction' => round($deductions, 2),
             'net_pay' => round($net, 2),
+            'tax_todate' => round($taxable, 2),
+            'pension_todate' => round($pension, 2),
         ];
     }
 
@@ -47,10 +49,62 @@
 
     $errors = [];
     $messages = [];
+    
+    // Handle AJAX requests for analytics
+    if (isset($_GET['ajax']) && $_GET['ajax'] === 'analytics') {
+        header('Content-Type: application/json');
+        
+        $monthlyStmt = $pdo->query("
+            SELECT DATE_FORMAT(pay_date, '%Y-%m') as month, 
+                   COUNT(*) as count,
+                   SUM(gross_pay) as total_gross,
+                   SUM(net_pay) as total_net,
+                   SUM(deduction) as total_deductions
+            FROM employees 
+            WHERE pay_date IS NOT NULL AND pay_date >= DATE_SUB(NOW(), INTERVAL 6 MONTH)
+            GROUP BY month 
+            ORDER BY month DESC
+        ");
+        
+        $genderStmt = $pdo->query("
+            SELECT gender, COUNT(*) as count, SUM(gross_pay) as total
+            FROM employees 
+            GROUP BY gender
+        ");
+        
+        $departmentStmt = $pdo->query("
+            SELECT employer, COUNT(*) as count, SUM(gross_pay) as total, AVG(gross_pay) as avg
+            FROM employees 
+            GROUP BY employer
+            ORDER BY total DESC
+            LIMIT 10
+        ");
+        
+        echo json_encode([
+            'monthly' => $monthlyStmt->fetchAll(),
+            'gender' => $genderStmt->fetchAll(),
+            'departments' => $departmentStmt->fetchAll()
+        ]);
+        exit;
+    }
+    
+    // Handle bulk operations
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $action = $_POST['action'] ?? '';
 
-        if ($action === 'add' || $action === 'update') {
+        if ($action === 'bulk_delete' && isset($_POST['ids'])) {
+            $ids = array_filter(array_map('intval', $_POST['ids']));
+            if (!empty($ids)) {
+                try {
+                    $placeholders = implode(',', array_fill(0, count($ids), '?'));
+                    $stmt = $pdo->prepare("DELETE FROM employees WHERE id IN ($placeholders)");
+                    $stmt->execute($ids);
+                    $messages[] = count($ids) . ' employee(s) deleted successfully.';
+                } catch (Exception $e) {
+                    $errors[] = 'Bulk delete failed: ' . $e->getMessage();
+                }
+            }
+        } elseif ($action === 'add' || $action === 'update') {
             $data = [];
             foreach ($all_fields as $f) {
                 $data[$f] = $_POST[$f] ?? null;
@@ -59,14 +113,12 @@
             if (empty(trim($data['employee_name'] ?? ''))) $errors[] = 'Employee name is required.';
             if (!in_array(strtolower($data['gender']), ['m','f',''], true)) $data['gender'] = null;
 
-       
             $data['inner_city'] = str_replace(',', '', $data['inner_city'] ?: 0);
             $data['basic_salary'] = str_replace(',', '', $data['basic_salary'] ?: 0);
             $data['overtime'] = str_replace(',', '', $data['overtime'] ?: 0);
 
             if (empty($errors)) {
                 $calc = calc_from_components($data['inner_city'], $data['basic_salary'], $data['overtime']);
-              
                 $data = array_merge($data, $calc);
 
                 try {
@@ -107,24 +159,44 @@
         }
     }
 
-
     $search = trim($_GET['q'] ?? '');
+    $filterGender = $_GET['gender'] ?? '';
+    $filterEmployer = $_GET['employer'] ?? '';
+    $sortBy = $_GET['sort'] ?? 'id';
+    $sortDir = $_GET['dir'] ?? 'DESC';
     $page = max(1, (int)($_GET['page'] ?? 1));
-    $per_page = 10;
+    $per_page = (int)($_GET['per_page'] ?? 10);
     $offset = ($page - 1) * $per_page;
 
     $params = [];
-    $where = '';
+    $where = [];
+    
     if ($search !== '') {
-        $where = "WHERE employee_name LIKE :q OR reference_no LIKE :q OR postcode LIKE :q OR ni_number LIKE :q OR employer LIKE :q";
+        $where[] = "(employee_name LIKE :q OR reference_no LIKE :q OR postcode LIKE :q OR ni_number LIKE :q OR employer LIKE :q)";
         $params[':q'] = "%$search%";
     }
+    
+    if ($filterGender !== '') {
+        $where[] = "gender = :gender";
+        $params[':gender'] = $filterGender;
+    }
+    
+    if ($filterEmployer !== '') {
+        $where[] = "employer = :employer";
+        $params[':employer'] = $filterEmployer;
+    }
+    
+    $whereClause = !empty($where) ? 'WHERE ' . implode(' AND ', $where) : '';
+    
+    $allowedSort = ['id', 'employee_name', 'gross_pay', 'net_pay', 'pay_date', 'employer'];
+    $sortBy = in_array($sortBy, $allowedSort) ? $sortBy : 'id';
+    $sortDir = strtoupper($sortDir) === 'ASC' ? 'ASC' : 'DESC';
 
-    $totalsStmt = $pdo->prepare("SELECT COUNT(*) as total_count, IFNULL(SUM(gross_pay),0) as total_gross, IFNULL(SUM(net_pay),0) as total_net, IFNULL(SUM(deduction),0) as total_ded FROM employees $where");
+    $totalsStmt = $pdo->prepare("SELECT COUNT(*) as total_count, IFNULL(SUM(gross_pay),0) as total_gross, IFNULL(SUM(net_pay),0) as total_net, IFNULL(SUM(deduction),0) as total_ded FROM employees $whereClause");
     $totalsStmt->execute($params);
     $totals = $totalsStmt->fetch();
 
-    $listSql = "SELECT * FROM employees $where ORDER BY id DESC LIMIT :limit OFFSET :offset";
+    $listSql = "SELECT * FROM employees $whereClause ORDER BY $sortBy $sortDir LIMIT :limit OFFSET :offset";
     $stmt = $pdo->prepare($listSql);
     foreach ($params as $k=>$v) $stmt->bindValue($k, $v);
     $stmt->bindValue(':limit', (int)$per_page, PDO::PARAM_INT);
@@ -132,13 +204,15 @@
     $stmt->execute();
     $rows = $stmt->fetchAll();
 
-    $countSql = "SELECT COUNT(*) FROM employees $where";
+    $countSql = "SELECT COUNT(*) FROM employees $whereClause";
     $countStmt = $pdo->prepare($countSql);
     $countStmt->execute($params);
     $total_records = (int)$countStmt->fetchColumn();
     $total_pages = max(1, ceil($total_records / $per_page));
-
-
+    
+    // Get employers for filter
+    $employersStmt = $pdo->query("SELECT DISTINCT employer FROM employees WHERE employer IS NOT NULL AND employer != '' ORDER BY employer");
+    $employers = $employersStmt->fetchAll(PDO::FETCH_COLUMN);
 ?>
 
 <!DOCTYPE html>
@@ -146,25 +220,27 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <title>Payroll Management System — Modern Dashboard</title>
+    <title>Advanced Payroll Management System</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <link href="style.css" rel="stylesheet">
 </head>
 <body>
-
-    
     <div id="toastContainer" class="toast-container"></div>
 
     <header class="gradient-header mb-4">
         <div class="container d-flex justify-content-between align-items-center py-3">
             <div>
                 <h1 class="text-white mb-0">
-                    <i class="bi bi-cash-stack me-2"></i>Payroll Dashboard
+                    <i class="bi bi-cash-stack me-2"></i>Advanced Payroll Dashboard
                 </h1>
-                <small class="text-white-50">Manage employees, payrolls, and reports</small>
+                <small class="text-white-50">Complete payroll management with analytics</small>
             </div>
             <div class="d-flex gap-2">
+                <button class="btn btn-outline-light" id="btnAnalytics" title="View Analytics">
+                    <i class="bi bi-graph-up"></i> <span class="d-none d-md-inline">Analytics</span>
+                </button>
                 <button class="btn btn-outline-light" id="btnExportCSV" title="Export to CSV">
                     <i class="bi bi-download"></i> <span class="d-none d-md-inline">Export</span>
                 </button>
@@ -179,7 +255,6 @@
     </header>
 
     <div class="container">
-
         <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-3">
             <div>
                 <h3 class="mb-0"><i class="bi bi-people-fill me-2"></i>Employees</h3>
@@ -190,17 +265,10 @@
                     </span>
                 </small>
             </div>
-            <div class="d-flex align-items-center" style="gap:.5rem;">
-                <form method="get" class="d-flex" style="gap:.5rem;">
-                    <div class="input-group">
-                        <span class="input-group-text"><i class="bi bi-search"></i></span>
-                        <input name="q" value="<?= s($search) ?>" class="form-control" placeholder="Search name, ref, postcode, NI, employer">
-                    </div>
-                    <button class="btn btn-primary">Search</button>
-                    <?php if ($search): ?>
-                        <a href="?" class="btn btn-outline-secondary" title="Clear search"><i class="bi bi-x-lg"></i></a>
-                    <?php endif; ?>
-                </form>
+            <div class="d-flex align-items-center gap-2">
+                <button id="btnBulkActions" class="btn btn-outline-danger" style="display:none;" title="Bulk Delete">
+                    <i class="bi bi-trash"></i> Delete Selected
+                </button>
                 <button id="floatingAdd" class="fab" title="Add employee (Ctrl+N)">+</button>
             </div>
         </div>
@@ -273,33 +341,76 @@
             </div>
         </div>
 
+        <!-- Advanced Filters -->
+        <div class="card mb-3">
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-search"></i></span>
+                            <input id="searchInput" value="<?= s($search) ?>" class="form-control" placeholder="Search...">
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <select id="filterGender" class="form-select">
+                            <option value="">All Genders</option>
+                            <option value="m" <?= $filterGender === 'm' ? 'selected' : '' ?>>Male</option>
+                            <option value="f" <?= $filterGender === 'f' ? 'selected' : '' ?>>Female</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <select id="filterEmployer" class="form-select">
+                            <option value="">All Employers</option>
+                            <?php foreach ($employers as $emp): ?>
+                                <option value="<?= s($emp) ?>" <?= $filterEmployer === $emp ? 'selected' : '' ?>><?= s($emp) ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <select id="perPage" class="form-select">
+                            <option value="10" <?= $per_page === 10 ? 'selected' : '' ?>>10 per page</option>
+                            <option value="25" <?= $per_page === 25 ? 'selected' : '' ?>>25 per page</option>
+                            <option value="50" <?= $per_page === 50 ? 'selected' : '' ?>>50 per page</option>
+                            <option value="100" <?= $per_page === 100 ? 'selected' : '' ?>>100 per page</option>
+                        </select>
+                    </div>
+                    <div class="col-md-1">
+                        <button id="btnApplyFilters" class="btn btn-primary w-100">
+                            <i class="bi bi-funnel"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <div class="card">
             <div class="card-body p-0">
                 <div class="table-responsive">
                 <table class="table table-hover mb-0 align-middle">
                     <thead class="table-dark">
                     <tr>
-                        <th><i class="bi bi-hash"></i></th>
-                        <th><i class="bi bi-person-badge"></i> Name</th>
-                        <th><i class="bi bi-card-text"></i> Reference</th>
-                        <th><i class="bi bi-building"></i> Employer</th>
-                        <th><i class="bi bi-cash"></i> Gross</th>
-                        <th><i class="bi bi-wallet"></i> Net</th>
+                        <th><input type="checkbox" id="selectAll" class="form-check-input"></th>
+                        <th class="sortable" data-sort="id"><i class="bi bi-hash"></i> ID</th>
+                        <th class="sortable" data-sort="employee_name"><i class="bi bi-person-badge"></i> Name</th>
+                        <th class="sortable" data-sort="employer"><i class="bi bi-building"></i> Employer</th>
+                        <th class="sortable" data-sort="gross_pay"><i class="bi bi-cash"></i> Gross</th>
+                        <th class="sortable" data-sort="net_pay"><i class="bi bi-wallet"></i> Net</th>
                         <th><i class="bi bi-arrow-down"></i> Deductions</th>
-                        <th><i class="bi bi-calendar-event"></i> Pay Date</th>
+                        <th class="sortable" data-sort="pay_date"><i class="bi bi-calendar-event"></i> Pay Date</th>
                         <th><i class="bi bi-gear"></i> Actions</th>
                     </tr>
                     </thead>
                     <tbody>
                     <?php if (empty($rows)): ?>
                         <tr>
-                            <td colspan="9" class="text-center py-5">
+                            <td colspan="10" class="text-center py-5">
                                 <i class="bi bi-inbox" style="font-size: 3rem; opacity: 0.3;"></i>
                                 <p class="text-muted mt-2">No records found.</p>
                             </td>
                         </tr>
                     <?php else: foreach ($rows as $r): ?>
                         <tr>
+                            <td><input type="checkbox" class="form-check-input row-select" value="<?= (int)$r['id'] ?>"></td>
                             <td><strong><?= (int)$r['id'] ?></strong></td>
                             <td>
                                 <strong><?= s($r['employee_name']) ?></strong><br>
@@ -307,7 +418,6 @@
                                     <i class="bi bi-geo-alt"></i> <?= s($r['address']) ?> <?= s($r['postcode']) ?>
                                 </small>
                             </td>
-                            <td><span class="badge bg-secondary"><?= s($r['reference_no']) ?></span></td>
                             <td>
                                 <strong><?= s($r['employer']) ?></strong><br>
                                 <small class="text-muted"><?= s($r['emp_address']) ?></small>
@@ -357,12 +467,12 @@
             <ul class="pagination mb-0">
                 <?php if ($page > 1): ?>
                     <li class="page-item">
-                        <a class="page-link" href="?q=<?= urlencode($search) ?>&page=1" title="First page">
+                        <a class="page-link" href="?page=1" title="First page">
                             <i class="bi bi-chevron-double-left"></i>
                         </a>
                     </li>
                     <li class="page-item">
-                        <a class="page-link" href="?q=<?= urlencode($search) ?>&page=<?= $page - 1 ?>" title="Previous page">
+                        <a class="page-link" href="?page=<?= $page - 1 ?>" title="Previous page">
                             <i class="bi bi-chevron-left"></i>
                         </a>
                     </li>
@@ -370,18 +480,18 @@
                 
                 <?php for ($p = max(1, $page - 2); $p <= min($total_pages, $page + 2); $p++): ?>
                     <li class="page-item <?= $p === $page ? 'active' : '' ?>">
-                        <a class="page-link" href="?q=<?= urlencode($search) ?>&page=<?= $p ?>"><?= $p ?></a>
+                        <a class="page-link" href="?page=<?= $p ?>"><?= $p ?></a>
                     </li>
                 <?php endfor; ?>
                 
                 <?php if ($page < $total_pages): ?>
                     <li class="page-item">
-                        <a class="page-link" href="?q=<?= urlencode($search) ?>&page=<?= $page + 1 ?>" title="Next page">
+                        <a class="page-link" href="?page=<?= $page + 1 ?>" title="Next page">
                             <i class="bi bi-chevron-right"></i>
                         </a>
                     </li>
                     <li class="page-item">
-                        <a class="page-link" href="?q=<?= urlencode($search) ?>&page=<?= $total_pages ?>" title="Last page">
+                        <a class="page-link" href="?page=<?= $total_pages ?>" title="Last page">
                             <i class="bi bi-chevron-double-right"></i>
                         </a>
                     </li>
@@ -389,36 +499,18 @@
             </ul>
         </nav>
         <?php endif; ?>
-
-
     </div>
 
-    <div class="modal fade" id="modalRow" tabindex="-1">
-        <div class="modal-dialog modal-xl modal-dialog-scrollable">
+    <!-- Analytics Modal -->
+    <div class="modal fade" id="modalAnalytics" tabindex="-1">
+        <div class="modal-dialog modal-xl">
             <div class="modal-content">
-            <form id="frmRow" method="post">
-            <div class="modal-header">
-                <h5 class="modal-title" id="modalTitle"><i class="bi bi-person-plus"></i> Employee</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <input type="hidden" name="action" id="formAction" value="add">
-                <input type="hidden" name="id" id="formId" value="0">
-
-                
-                <div class="mb-4">
-                    <h6 class="text-primary border-bottom pb-2 mb-3">
-                        <i class="bi bi-person-badge"></i> Personal Information
-                    </h6>
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="bi bi-graph-up"></i> Payroll Analytics</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
                     <div class="row g-3">
-                        <div class="col-md-4">
-                            <label class="form-label"><i class="bi bi-person"></i> Full Name *</label>
-                            <input name="employee_name" id="employee_name" class="form-control" required>
-                        </div>
-                        <div class="col-md-4">
-                            <label class="form-label"><i class="bi bi-card-text"></i> Reference No</label>
-                            <input name="reference_no" id="reference_no" class="form-control">
-                        </div>
                         <div class="col-md-4">
                             <label class="form-label"><i class="bi bi-gender-ambiguous"></i> Gender</label>
                             <select name="gender" id="gender" class="form-select">
@@ -438,7 +530,6 @@
                     </div>
                 </div>
 
-               
                 <div class="mb-4">
                     <h6 class="text-primary border-bottom pb-2 mb-3">
                         <i class="bi bi-building"></i> Employer Information
@@ -455,7 +546,6 @@
                     </div>
                 </div>
 
-              
                 <div class="mb-4">
                     <h6 class="text-primary border-bottom pb-2 mb-3">
                         <i class="bi bi-receipt"></i> Tax & National Insurance
@@ -480,7 +570,6 @@
                     </div>
                 </div>
 
-               
                 <div class="mb-4">
                     <h6 class="text-primary border-bottom pb-2 mb-3">
                         <i class="bi bi-cash-coin"></i> Salary & Payment Details
@@ -514,7 +603,6 @@
                     </div>
                 </div>
 
-                
                 <div class="mb-4">
                     <h6 class="text-success border-bottom pb-2 mb-3">
                         <i class="bi bi-calculator"></i> Calculated Values (Live Preview)
@@ -565,7 +653,6 @@
                     </div>
                 </div>
 
-                
                 <div class="mb-3">
                     <h6 class="text-primary border-bottom pb-2 mb-3">
                         <i class="bi bi-sticky"></i> Additional Notes
@@ -577,7 +664,6 @@
                         </div>
                     </div>
                 </div>
-
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
@@ -595,15 +681,15 @@
     <footer class="container mt-5 mb-3">
         <div class="text-center text-muted">
             <small>
-                <i class="bi bi-c-circle"></i> 2024 Payroll Management System | 
+                <i class="bi bi-c-circle"></i> 2024 Advanced Payroll System | 
                 <i class="bi bi-shield-check"></i> Secure & Reliable | 
-                <i class="bi bi-globe"></i> Version 2.0
+                <i class="bi bi-globe"></i> Version 3.0
             </small>
         </div>
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="js.js"></script>
-
+<!-- End of body and html -->
 </body>
 </html>
