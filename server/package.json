@@ -6,7 +6,8 @@
   "main": "index.js",
   "scripts": {
     "dev": "node index.js",
-    "start": "node index.js"
+    "start": "node index.js",
+    "seed": "node seed.js"
   },
   "dependencies": {
     "cors": "^2.8.5",
