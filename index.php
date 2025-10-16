@@ -13,6 +13,30 @@
         exit;
     }
 
+    function calc_from_components($inner_city, $basic_salary, $overtime) {
+        $inner_city = (float)$inner_city;
+        $basic_salary = (float)$basic_salary;
+        $overtime = (float)$overtime;
+
+        $gross = $inner_city + $basic_salary + $overtime;
+        $taxable = ($gross * 9) / 100.0; // 9%
+        $pension = ($gross * 5.5) / 100.0; // 5.5%
+        $student = ($gross * 2.5) / 100.0; // 2.5%
+        $ni = ($gross * 2.3) / 100.0; // 2.3%
+        $deductions = $taxable + $pension + $student + $ni;
+        $net = $gross - $deductions;
+
+        return [
+            'gross_pay' => round($gross, 2),
+            'taxable_pay' => round($taxable, 2),
+            'pensionable_pay' => round($pension, 2),
+            'student_loan' => round($student, 2),
+            'ni_payment' => round($ni, 2),
+            'deduction' => round($deductions, 2),
+            'net_pay' => round($net, 2),
+        ];
+    }
+
 
 ?>
 
