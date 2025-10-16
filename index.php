@@ -501,179 +501,244 @@
         <?php endif; ?>
     </div>
 
+    <!-- Employee Form Modal -->
+    <div class="modal fade" id="modalRow" tabindex="-1">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <form method="post" id="frmRow">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="modalTitle"><i class="bi bi-person-plus"></i> Add Employee</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <input type="hidden" name="action" id="formAction" value="add">
+                        <input type="hidden" name="id" id="formId" value="0">
+                        
+                        <div class="mb-4">
+                            <h6 class="text-primary border-bottom pb-2 mb-3">
+                                <i class="bi bi-person"></i> Personal Information
+                            </h6>
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label class="form-label"><i class="bi bi-person-badge"></i> Employee Name *</label>
+                                    <input name="employee_name" id="employee_name" class="form-control" required>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label"><i class="bi bi-hash"></i> Reference No</label>
+                                    <input name="reference_no" id="reference_no" class="form-control">
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label"><i class="bi bi-gender-ambiguous"></i> Gender</label>
+                                    <select name="gender" id="gender" class="form-select">
+                                        <option value="">Select...</option>
+                                        <option value="m">Male</option>
+                                        <option value="f">Female</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-8">
+                                    <label class="form-label"><i class="bi bi-geo-alt"></i> Address</label>
+                                    <input name="address" id="address" class="form-control">
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label"><i class="bi bi-mailbox"></i> Postcode</label>
+                                    <input name="postcode" id="postcode" class="form-control">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <h6 class="text-primary border-bottom pb-2 mb-3">
+                                <i class="bi bi-building"></i> Employer Information
+                            </h6>
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label class="form-label"><i class="bi bi-briefcase"></i> Employer</label>
+                                    <input name="employer" id="employer" class="form-control">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label"><i class="bi bi-geo"></i> Employer Address</label>
+                                    <input name="emp_address" id="emp_address" class="form-control">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <h6 class="text-primary border-bottom pb-2 mb-3">
+                                <i class="bi bi-receipt"></i> Tax & National Insurance
+                            </h6>
+                            <div class="row g-3">
+                                <div class="col-md-3">
+                                    <label class="form-label"><i class="bi bi-calendar-range"></i> Tax Period</label>
+                                    <input name="tax_period" id="tax_period" class="form-control" placeholder="e.g., 2024-25">
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label"><i class="bi bi-file-text"></i> Tax Code</label>
+                                    <input name="tax_code" id="tax_code" class="form-control" placeholder="e.g., 1257L">
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label"><i class="bi bi-hash"></i> NI Number</label>
+                                    <input name="ni_number" id="ni_number" class="form-control" placeholder="e.g., AB123456C">
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label"><i class="bi bi-code-square"></i> NI Code</label>
+                                    <input name="ni_code" id="ni_code" class="form-control">
+                                </div>
+                                <div class="col-md-12">
+                                    <label class="form-label"><i class="bi bi-mortarboard"></i> Student Ref</label>
+                                    <input name="student_ref" id="student_ref" class="form-control">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <h6 class="text-primary border-bottom pb-2 mb-3">
+                                <i class="bi bi-cash-coin"></i> Salary & Payment Details
+                            </h6>
+                            <div class="row g-3">
+                                <div class="col-md-3">
+                                    <label class="form-label"><i class="bi bi-calendar-event"></i> Pay Date</label>
+                                    <input name="pay_date" id="pay_date" class="form-control" type="date">
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label"><i class="bi bi-building"></i> Inner City Allowance</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text">£</span>
+                                        <input name="inner_city" id="inner_city" class="form-control" type="number" step="0.01" value="0">
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label"><i class="bi bi-wallet2"></i> Basic Salary</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text">£</span>
+                                        <input name="basic_salary" id="basic_salary" class="form-control" type="number" step="0.01" value="0">
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label"><i class="bi bi-clock"></i> Overtime</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text">£</span>
+                                        <input name="overtime" id="overtime" class="form-control" type="number" step="0.01" value="0">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <h6 class="text-success border-bottom pb-2 mb-3">
+                                <i class="bi bi-calculator"></i> Calculated Values (Live Preview)
+                            </h6>
+                            <div class="row g-3">
+                                <div class="col-md-4 col-6">
+                                    <div class="calc-card text-center">
+                                        <small class="text-muted d-block">Gross Pay</small>
+                                        <strong id="calc_gross" class="h5">£0.00</strong>
+                                    </div>
+                                </div>
+                                <div class="col-md-4 col-6">
+                                    <div class="calc-card text-center">
+                                        <small class="text-muted d-block">Net Pay</small>
+                                        <strong id="calc_net" class="h5 text-success">£0.00</strong>
+                                    </div>
+                                </div>
+                                <div class="col-md-4 col-6">
+                                    <div class="calc-card text-center">
+                                        <small class="text-muted d-block">Total Deductions</small>
+                                        <strong id="calc_ded" class="h5 text-danger">£0.00</strong>
+                                    </div>
+                                </div>
+                                <div class="col-md-3 col-6">
+                                    <div class="calc-card text-center">
+                                        <small class="text-muted d-block">Tax (9%)</small>
+                                        <strong id="calc_taxable">£0.00</strong>
+                                    </div>
+                                </div>
+                                <div class="col-md-3 col-6">
+                                    <div class="calc-card text-center">
+                                        <small class="text-muted d-block">Pension (5.5%)</small>
+                                        <strong id="calc_pension">£0.00</strong>
+                                    </div>
+                                </div>
+                                <div class="col-md-3 col-6">
+                                    <div class="calc-card text-center">
+                                        <small class="text-muted d-block">Student Loan (2.5%)</small>
+                                        <strong id="calc_student">£0.00</strong>
+                                    </div>
+                                </div>
+                                <div class="col-md-3 col-6">
+                                    <div class="calc-card text-center">
+                                        <small class="text-muted d-block">NI (2.3%)</small>
+                                        <strong id="calc_ni">£0.00</strong>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <h6 class="text-primary border-bottom pb-2 mb-3">
+                                <i class="bi bi-sticky"></i> Additional Notes
+                            </h6>
+                            <div class="row g-3">
+                                <div class="col-12">
+                                    <label class="form-label"><i class="bi bi-pencil-square"></i> Reference Note</label>
+                                    <textarea name="ref_note" id="ref_note" class="form-control" rows="3" placeholder="Add any additional notes or comments..."></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                            <i class="bi bi-x-circle"></i> Close
+                        </button>
+                        <button type="submit" class="btn btn-primary" id="modalSave">
+                            <i class="bi bi-check-circle"></i> Save Employee
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
     <!-- Analytics Modal -->
     <div class="modal fade" id="modalAnalytics" tabindex="-1">
         <div class="modal-dialog modal-xl">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title"><i class="bi bi-graph-up"></i> Payroll Analytics</h5>
+                    <h5 class="modal-title"><i class="bi bi-graph-up"></i> Payroll Analytics Dashboard</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
-                    <div class="row g-3">
-                        <div class="col-md-4">
-                            <label class="form-label"><i class="bi bi-gender-ambiguous"></i> Gender</label>
-                            <select name="gender" id="gender" class="form-select">
-                                <option value="">Select...</option>
-                                <option value="m">Male</option>
-                                <option value="f">Female</option>
-                            </select>
-                        </div>
-                        <div class="col-md-8">
-                            <label class="form-label"><i class="bi bi-geo-alt"></i> Address</label>
-                            <input name="address" id="address" class="form-control">
-                        </div>
-                        <div class="col-md-4">
-                            <label class="form-label"><i class="bi bi-mailbox"></i> Postcode</label>
-                            <input name="postcode" id="postcode" class="form-control">
-                        </div>
-                    </div>
-                </div>
-
-                <div class="mb-4">
-                    <h6 class="text-primary border-bottom pb-2 mb-3">
-                        <i class="bi bi-building"></i> Employer Information
-                    </h6>
-                    <div class="row g-3">
-                        <div class="col-md-6">
-                            <label class="form-label"><i class="bi bi-briefcase"></i> Employer</label>
-                            <input name="employer" id="employer" class="form-control">
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label"><i class="bi bi-geo"></i> Employer Address</label>
-                            <input name="emp_address" id="emp_address" class="form-control">
-                        </div>
-                    </div>
-                </div>
-
-                <div class="mb-4">
-                    <h6 class="text-primary border-bottom pb-2 mb-3">
-                        <i class="bi bi-receipt"></i> Tax & National Insurance
-                    </h6>
-                    <div class="row g-3">
-                        <div class="col-md-3">
-                            <label class="form-label"><i class="bi bi-calendar-range"></i> Tax Period</label>
-                            <input name="tax_period" id="tax_period" class="form-control" placeholder="e.g., 2024-25">
-                        </div>
-                        <div class="col-md-3">
-                            <label class="form-label"><i class="bi bi-file-text"></i> Tax Code</label>
-                            <input name="tax_code" id="tax_code" class="form-control" placeholder="e.g., 1257L">
-                        </div>
-                        <div class="col-md-3">
-                            <label class="form-label"><i class="bi bi-hash"></i> NI Number</label>
-                            <input name="ni_number" id="ni_number" class="form-control" placeholder="e.g., AB123456C">
-                        </div>
-                        <div class="col-md-3">
-                            <label class="form-label"><i class="bi bi-code-square"></i> NI Code</label>
-                            <input name="ni_code" id="ni_code" class="form-control">
-                        </div>
-                    </div>
-                </div>
-
-                <div class="mb-4">
-                    <h6 class="text-primary border-bottom pb-2 mb-3">
-                        <i class="bi bi-cash-coin"></i> Salary & Payment Details
-                    </h6>
-                    <div class="row g-3">
-                        <div class="col-md-3">
-                            <label class="form-label"><i class="bi bi-calendar-event"></i> Pay Date</label>
-                            <input name="pay_date" id="pay_date" class="form-control" type="date">
-                        </div>
-                        <div class="col-md-3">
-                            <label class="form-label"><i class="bi bi-building"></i> Inner City Allowance</label>
-                            <div class="input-group">
-                                <span class="input-group-text">£</span>
-                                <input name="inner_city" id="inner_city" class="form-control" type="number" step="0.01" value="0">
-                            </div>
-                        </div>
-                        <div class="col-md-3">
-                            <label class="form-label"><i class="bi bi-wallet2"></i> Basic Salary</label>
-                            <div class="input-group">
-                                <span class="input-group-text">£</span>
-                                <input name="basic_salary" id="basic_salary" class="form-control" type="number" step="0.01" value="0">
-                            </div>
-                        </div>
-                        <div class="col-md-3">
-                            <label class="form-label"><i class="bi bi-clock"></i> Overtime</label>
-                            <div class="input-group">
-                                <span class="input-group-text">£</span>
-                                <input name="overtime" id="overtime" class="form-control" type="number" step="0.01" value="0">
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="mb-4">
-                    <h6 class="text-success border-bottom pb-2 mb-3">
-                        <i class="bi bi-calculator"></i> Calculated Values (Live Preview)
-                    </h6>
-                    <div class="row g-3">
-                        <div class="col-md-4 col-6">
-                            <div class="calc-card text-center">
-                                <small class="text-muted d-block">Gross Pay</small>
-                                <strong id="calc_gross" class="h5">£0.00</strong>
-                            </div>
-                        </div>
-                        <div class="col-md-4 col-6">
-                            <div class="calc-card text-center">
-                                <small class="text-muted d-block">Net Pay</small>
-                                <strong id="calc_net" class="h5 text-success">£0.00</strong>
-                            </div>
-                        </div>
-                        <div class="col-md-4 col-6">
-                            <div class="calc-card text-center">
-                                <small class="text-muted d-block">Total Deductions</small>
-                                <strong id="calc_ded" class="h5 text-danger">£0.00</strong>
-                            </div>
-                        </div>
-                        <div class="col-md-3 col-6">
-                            <div class="calc-card text-center">
-                                <small class="text-muted d-block">Tax (9%)</small>
-                                <strong id="calc_taxable">£0.00</strong>
-                            </div>
-                        </div>
-                        <div class="col-md-3 col-6">
-                            <div class="calc-card text-center">
-                                <small class="text-muted d-block">Pension (5.5%)</small>
-                                <strong id="calc_pension">£0.00</strong>
-                            </div>
-                        </div>
-                        <div class="col-md-3 col-6">
-                            <div class="calc-card text-center">
-                                <small class="text-muted d-block">Student Loan (2.5%)</small>
-                                <strong id="calc_student">£0.00</strong>
-                            </div>
-                        </div>
-                        <div class="col-md-3 col-6">
-                            <div class="calc-card text-center">
-                                <small class="text-muted d-block">NI (2.3%)</small>
-                                <strong id="calc_ni">£0.00</strong>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="mb-3">
-                    <h6 class="text-primary border-bottom pb-2 mb-3">
-                        <i class="bi bi-sticky"></i> Additional Notes
-                    </h6>
-                    <div class="row g-3">
+                    <div class="row g-4">
                         <div class="col-12">
-                            <label class="form-label"><i class="bi bi-pencil-square"></i> Reference Note</label>
-                            <textarea name="ref_note" id="ref_note" class="form-control" rows="3" placeholder="Add any additional notes or comments..."></textarea>
+                            <div class="card">
+                                <div class="card-body">
+                                    <h6 class="card-title"><i class="bi bi-graph-up-arrow"></i> Monthly Payroll Trends (Last 6 Months)</h6>
+                                    <canvas id="monthlyChart" height="80"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h6 class="card-title"><i class="bi bi-gender-ambiguous"></i> Gender Distribution</h6>
+                                    <canvas id="genderChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h6 class="card-title"><i class="bi bi-building"></i> Top Departments by Payroll</h6>
+                                    <canvas id="departmentChart"></canvas>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                    <i class="bi bi-x-circle"></i> Close
-                </button>
-                <button type="submit" class="btn btn-primary" id="modalSave">
-                    <i class="bi bi-check-circle"></i> Save Employee
-                </button>
-            </div>
-            </form>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="bi bi-x-circle"></i> Close
+                    </button>
+                </div>
             </div>
         </div>
     </div>
@@ -690,6 +755,5 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="js.js"></script>
-<!-- End of body and html -->
 </body>
 </html>
