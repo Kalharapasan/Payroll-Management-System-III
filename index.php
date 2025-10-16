@@ -144,11 +144,27 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Payroll — Modern Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="style.css" rel="stylesheet">
 </head>
 <body>
+
+    <header class="gradient-header mb-4">
+        <div class="container d-flex justify-content-between align-items-center py-3">
+            <div>
+            <h1 class="text-white mb-0">Payroll Dashboard</h1>
+            <small class="text-white-50">Manage employees, payrolls, and reports</small>
+            </div>
+            <div>
+            <button class="btn btn-outline-light" id="btnTheme">Toggle Theme</button>
+            </div>
+        </div>
+    </header>
+
+    
     
 </body>
 </html>
