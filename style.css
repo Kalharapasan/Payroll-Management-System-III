@@ -1,0 +1,35 @@
+:root{
+  --gradient-1: linear-gradient(135deg,#667eea 0%,#764ba2 100%);
+  --card-bg: #ffffff;
+  --muted: #6b7280;
+}
+
+body{background: #f4f6fb; font-family: Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial; color:#0f172a}
+.gradient-header{background: var(--gradient-1); border-radius:0 0 12px 12px}
+.gradient-header h1{font-weight:700;letter-spacing:0.2px}
+
+.stat-card{border-radius:12px; box-shadow:0 6px 18px rgba(102,126,234,0.12);}
+.stat-card .card-body{background:linear-gradient(180deg, rgba(255,255,255,0.9), rgba(255,255,255,0.8));}
+
+.monos{font-family: ui-monospace, SFMono-Regular, Menlo, monospace}
+
+.fab{background:linear-gradient(135deg,#10b981,#06b6d4); color:white; width:52px; height:52px; border-radius:50%; border:none; font-size:28px; display:inline-flex; align-items:center; justify-content:center; box-shadow:0 8px 20px rgba(2,6,23,0.12); cursor:pointer}
+.fab:hover{transform:translateY(-2px);}
+
+.calc-card{background:linear-gradient(90deg, rgba(255,255,255,0.9), rgba(255,255,255,0.8)); padding:8px 12px; border-radius:8px; box-shadow:0 4px 12px rgba(15,23,42,0.04);}
+
+.table-dark th{background:linear-gradient(90deg,#3b82f6,#8b5cf6); color:white}
+.table-hover tbody tr:hover{background:rgba(99,102,241,0.04)}
+
+.card{border:none; border-radius:12px; box-shadow:0 6px 20px rgba(15,23,42,0.06)}
+
+
+@media(max-width:768px){
+  .fab{position:fixed; right:18px; bottom:18px}
+}
+
+body.dark-mode{background:#0b1220; color:#dbeafe}
+body.dark-mode .card{background:#071127}
+body.dark-mode .stat-card .card-body{background:linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01));}
+body.dark-mode .gradient-header{opacity:0.9}
+body.dark-mode .table-dark th{background:linear-gradient(90deg,#1f2937,#111827)}
