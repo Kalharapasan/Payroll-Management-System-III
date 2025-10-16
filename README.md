@@ -571,13 +571,16 @@ All endpoints return appropriate HTTP status codes:
 > Note: Images are referenced from `docs/screenshots/`. Add your files with these names so they render on GitHub.
 
 ### Dashboard
-![Dashboard](docs/screenshots/dashboard.png)
+
+<img width="1366" height="631" alt="Capture3" src="https://github.com/user-attachments/assets/d9614a70-cd47-4adb-be75-09542588eb69" />
 
 ### Employees
-![Employees](docs/screenshots/employees.png)
+
+<img width="1366" height="628" alt="Capture2" src="https://github.com/user-attachments/assets/19782f56-743e-4be0-afbe-12a69ef8c266" />
 
 ### Payslips
-![Payslips](docs/screenshots/payslips.png)
+<img width="1366" height="631" alt="Capture3" src="https://github.com/user-attachments/assets/6fed19ed-88d4-4b26-944b-3cc2058182e7" />
+
 
 ## �🔮 Future Enhancements
 
