@@ -2,8 +2,7 @@ import { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
 import { Employee, Department } from '../types';
 import { generateReferenceNo } from '../utils/calculations';
-import { supabase } from '../lib/supabase';
-import api, { isSupabaseConfigured } from '../lib/api';
+import api from '../lib/api';
 
 interface EmployeeModalProps {
   isOpen: boolean;
@@ -50,13 +49,8 @@ export function EmployeeModal({ isOpen, onClose, onSave, employee, mode }: Emplo
   }, [employee, mode]);
 
   const fetchDepartments = async () => {
-    if (isSupabaseConfigured && supabase) {
-      const { data } = await supabase.from('departments').select('*').order('name');
-      if (data) setDepartments(data as Department[]);
-    } else {
-      const data = await api.getDepartments();
-      setDepartments(data);
-    }
+    const data = await api.getDepartments();
+    setDepartments(data);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {

@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Users, DollarSign, TrendingUp, Briefcase } from 'lucide-react';
-import { supabase } from '../lib/supabase';
-import api, { isSupabaseConfigured } from '../lib/api';
+import api from '../lib/api';
 import { formatCurrency } from '../utils/calculations';
 
 interface DashboardStats {
@@ -26,22 +25,11 @@ export function Dashboard() {
 
   const fetchStats = async () => {
     try {
-  type EmpLite = { id: string; employment_status: 'active' | 'on_leave' | 'terminated' };
-  type PayLite = { gross_pay: number; net_pay: number };
-  let employees: EmpLite[] = [];
-  let payslips: PayLite[] = [];
-      if (isSupabaseConfigured && supabase) {
-        const [employeesRes, payslipsRes] = await Promise.all([
-          supabase.from('employees').select('id, employment_status'),
-          supabase.from('payslips').select('gross_pay, net_pay'),
-        ]);
-        employees = (employeesRes.data || []) as EmpLite[];
-        payslips = (payslipsRes.data || []) as PayLite[];
-      } else {
-        const eAll = await api.getEmployees();
-        employees = eAll.map((e) => ({ id: e.id, employment_status: e.employment_status as EmpLite['employment_status'] }));
-        payslips = await api.getPayslips();
-      }
+      type EmpLite = { id: string; employment_status: 'active' | 'on_leave' | 'terminated' };
+      type PayLite = { gross_pay: number; net_pay: number };
+      const eAll = await api.getEmployees();
+      const employees: EmpLite[] = eAll.map((e) => ({ id: e.id, employment_status: e.employment_status }));
+      const payslips: PayLite[] = await api.getPayslips();
 
       const activeCount = employees.filter((e) => e.employment_status === 'active').length;
       const totalPayroll = payslips.reduce((sum, p) => sum + p.net_pay, 0);
