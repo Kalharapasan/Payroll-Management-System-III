@@ -164,7 +164,35 @@
         </div>
     </header>
 
-    
+    <div class="container">
+
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <div>
+                <h3 class="mb-0">Employees</h3>
+                <small class="text-muted">Total records: <?= $total_records ?></small>
+            </div>
+            <div class="d-flex align-items-center" style="gap:.5rem;">
+                <form method="get" class="d-flex" style="gap:.5rem;">
+                    <input name="q" value="<?= s($search) ?>" class="form-control" placeholder="Search name, ref, postcode, NI, employer">
+                    <button class="btn btn-primary">Search</button>
+                </form>
+                <button id="floatingAdd" class="fab" title="Add employee">+</button>
+            </div>
+        </div>
+
+        <?php foreach ($messages as $m): ?>
+        <div class="alert alert-success"><?= s($m) ?></div>
+        <?php endforeach; ?>
+        <?php foreach ($errors as $e): ?>
+            <div class="alert alert-danger"><?= s($e) ?></div>
+        <?php endforeach; ?>
+
+        
+
+
+    </div>
+
+
     
 </body>
 </html>
