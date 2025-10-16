@@ -763,6 +763,6 @@ For technical support or feature requests, please create an issue in the reposit
   
 **Built with ❤️ for efficient payroll management**
 
-[Report Bug](https://github.com/Kalharapasan/Payroll-Management-System-III/issues) · [Request Feature](https://github.com/Kalharapasan/Payroll-Management-System-III/issues)
+[Report Bug](https://github.com/Kalharapasan/Payroll-Management-System-III/issues/new?template=bug_report.md) · [Request Feature](https://github.com/Kalharapasan/Payroll-Management-System-III/issues/new?template=feature_request.md)
 
 </div>
