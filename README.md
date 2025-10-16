@@ -1,6 +1,6 @@
 # Advanced Payroll Management System
 
-A comprehensive, modern payroll management system built with React, TypeScript, Tailwind CSS, and Supabase.
+A comprehensive, modern payroll management system built with React, TypeScript, Tailwind CSS, and a local MySQL database (via a lightweight Node/Express API).
 
 ## Features
 
@@ -34,8 +34,8 @@ A comprehensive, modern payroll management system built with React, TypeScript, 
 ### Advanced Features
 - Responsive design for mobile and desktop
 - Beautiful gradient UI with smooth animations
-- Real-time data synchronization with Supabase
-- Secure Row Level Security (RLS) policies
+- Local MySQL-backed API (no external services required)
+- Secure schema with foreign keys and constraints
 - Custom scrollbar styling
 - Loading states and error handling
 - Form validation
@@ -77,11 +77,11 @@ A comprehensive, modern payroll management system built with React, TypeScript, 
 
 ## Technology Stack
 
-- **Frontend**: React 18 + TypeScript
-- **Styling**: Tailwind CSS
-- **Database**: Supabase (PostgreSQL)
-- **Icons**: Lucide React
-- **Build Tool**: Vite
+- Frontend: React 18 + TypeScript (Vite)
+- Styling: Tailwind CSS
+- Backend API: Node.js (Express) + mysql2
+- Database: MySQL (XAMPP)
+- Icons: Lucide React
 
 ## Payroll Calculation Formula
 
@@ -97,34 +97,36 @@ Net Pay = Gross Pay - Total Deductions
 
 ## Security Features
 
-- Row Level Security (RLS) enabled on all tables
-- Authenticated user policies
-- Secure data access patterns
 - Foreign key constraints
 - Unique constraints on critical fields
+- Parameterized queries
 
-## Getting Started
+## Getting Started (Local MySQL + API)
 
-1. Install dependencies:
-   ```bash
+1) Start MySQL in XAMPP and note credentials (default: user `root`, empty password).
+
+2) Configure the API server environment:
+   - Copy `server/.env.example` to `server/.env` and adjust values (DB_USER, DB_PASSWORD, etc.). The default provided matches XAMPP defaults.
+
+3) Create database and tables (one-time):
+   - The API will auto-create the `pms_iii` database and core tables on first run if they don't exist. Alternatively, you can import `server/mysql-schema.sql` via phpMyAdmin.
+
+4) Install dependencies and start both servers (in two terminals):
+   ```powershell
+   # Terminal 1 - API
+   cd server
    npm install
-   ```
-
-2. Set up environment variables (already configured in `.env`):
-   ```
-   VITE_SUPABASE_URL=your_supabase_url
-   VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
-   ```
-
-3. Run development server:
-   ```bash
    npm run dev
+   # API will run at http://localhost:5177
+
+   # Terminal 2 - Frontend
+   cd ..
+   npm install
+   npm run dev
+   # Frontend will run at http://localhost:5173 and proxy /api to the API
    ```
 
-4. Build for production:
-   ```bash
-   npm run build
-   ```
+5) Open http://localhost:5173 in your browser.
 
 ## Sample Data
 
@@ -142,39 +144,14 @@ The system includes 5 sample employees across different departments:
 
 Proprietary - Advanced Payroll Management System 2024
 
-## Local MySQL setup (XAMPP)
+## Troubleshooting
 
-This project can run without Supabase by connecting to a local MySQL server via a small Node/Express API.
+- ECONNREFUSED on /api/* in Vite console:
+   - Cause: API server not running or listening on a different port.
+   - Fix: Start the API (`cd server; npm run dev`) and ensure it prints `PMS III API listening on http://localhost:5177`. Verify http://localhost:5177/api/health returns `{ ok: true, db: true }`.
 
-Steps (Windows PowerShell):
+- 500 errors from API routes:
+   - Check the API terminal for stack traces. Ensure `server/.env` DB credentials are correct and MySQL is running. If the user lacks permissions to create DBs, import `server/mysql-schema.sql` manually via phpMyAdmin.
 
-1) Ensure MySQL is running in XAMPP and note credentials (default: user `root`, empty password).
-
-2) Create database and tables:
-
-   - Open phpMyAdmin or the MySQL CLI and execute `server/mysql-schema.sql`.
-
-3) Configure API server env:
-
-   - Copy `server/.env.example` to `server/.env` and adjust values (DB_USER, DB_PASSWORD, etc.).
-
-4) Install API deps and start server:
-
-```
-cd server
-npm install
-npm run dev
-```
-
-It will serve at http://localhost:5174
-
-5) Start Vite dev server in the root (new terminal):
-
-```
-npm instal
-npm run dev
-```
-
-Vite dev server proxies `/api` to the API server. If `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` are not set, the frontend will use the MySQL API automatically.
-
-Optional: To explicitly point to a non-proxied API, set `VITE_API_BASE_URL` in a `.env` file at the project root (e.g., `VITE_API_BASE_URL=http://localhost:5174/api`).
+- Want to bypass the Vite proxy:
+   - Create a `.env` in project root and set `VITE_API_BASE_URL=http://localhost:5177/api`. Restart `npm run dev` after changes.
