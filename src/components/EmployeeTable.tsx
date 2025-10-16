@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Edit2, Trash2, Eye, Search, Filter, Plus } from 'lucide-react';
 import { Employee } from '../types';
-import { formatCurrency, formatDate } from '../utils/calculations';
+import { formatCurrency } from '../utils/calculations';
 
 interface EmployeeTableProps {
   employees: Employee[];

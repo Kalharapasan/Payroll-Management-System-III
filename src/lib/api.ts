@@ -21,6 +21,9 @@ async function http(path: string, options: RequestInit = {}) {
 }
 
 export const api = {
+  // Departments
+  getDepartments: (): Promise<import('../types').Department[]> => http('/departments', { method: 'GET' }),
+
   // Employees
   getEmployees: (): Promise<Employee[]> => http('/employees', { method: 'GET' }),
   addEmployee: (payload: Partial<Employee>): Promise<Employee> => http('/employees', { method: 'POST', body: JSON.stringify(payload) }),

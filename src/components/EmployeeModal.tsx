@@ -8,7 +8,7 @@ import api, { isSupabaseConfigured } from '../lib/api';
 interface EmployeeModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSave: (employee: Partial<Employee>) => Promise<any>;
+  onSave: (employee: Partial<Employee>) => Promise<{ data: Employee | null; error: string | null } | void>;
   employee?: Employee | null;
   mode: 'add' | 'edit' | 'view';
 }
@@ -42,10 +42,10 @@ export function EmployeeModal({ isOpen, onClose, onSave, employee, mode }: Emplo
     if (employee) {
       setFormData(employee);
     } else if (mode === 'add') {
-      setFormData({
-        ...formData,
+      setFormData((prev) => ({
+        ...prev,
         reference_no: generateReferenceNo(),
-      });
+      }));
     }
   }, [employee, mode]);
 
@@ -54,9 +54,8 @@ export function EmployeeModal({ isOpen, onClose, onSave, employee, mode }: Emplo
       const { data } = await supabase.from('departments').select('*').order('name');
       if (data) setDepartments(data as Department[]);
     } else {
-      // Minimal fallback: build departments from employees' existing department_id is not ideal.
-      // For MySQL mode, you can extend the API to expose /departments if needed.
-      setDepartments([]);
+      const data = await api.getDepartments();
+      setDepartments(data);
     }
   };
 

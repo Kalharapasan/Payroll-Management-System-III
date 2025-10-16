@@ -36,6 +36,16 @@ app.get('/api/health', async (_req, res) => {
 // Helpers
 const now = () => new Date().toISOString().slice(0, 19).replace('T', ' ');
 
+// Departments
+app.get('/api/departments', async (_req, res) => {
+  try {
+    const [rows] = await pool.query('SELECT * FROM departments ORDER BY name');
+    res.json(rows);
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
 // Employees
 app.get('/api/employees', async (_req, res) => {
   try {

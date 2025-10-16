@@ -3,11 +3,12 @@ import { X, Calculator } from 'lucide-react';
 import { Payslip, Employee } from '../types';
 import { calculatePayroll, formatCurrency } from '../utils/calculations';
 import { supabase } from '../lib/supabase';
+import api, { isSupabaseConfigured } from '../lib/api';
 
 interface PayslipModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSave: (payslip: Partial<Payslip>) => Promise<any>;
+  onSave: (payslip: Partial<Payslip>) => Promise<{ data: Payslip | null; error: string | null } | void>;
   payslip?: Payslip | null;
 }
 
@@ -57,12 +58,17 @@ export function PayslipModal({ isOpen, onClose, onSave, payslip }: PayslipModalP
   }, [formData.inner_city, formData.basic_salary, formData.overtime, formData.bonuses]);
 
   const fetchEmployees = async () => {
-    const { data } = await supabase
-      .from('employees')
-      .select('*')
-      .eq('employment_status', 'active')
-      .order('employee_name');
-    if (data) setEmployees(data);
+    if (isSupabaseConfigured && supabase) {
+      const { data } = await supabase
+        .from('employees')
+        .select('*')
+        .eq('employment_status', 'active')
+        .order('employee_name');
+      if (data) setEmployees(data as Employee[]);
+    } else {
+      const data = await api.getEmployees();
+      setEmployees(data.filter((e) => e.employment_status === 'active'));
+    }
   };
 
   const handleEmployeeChange = (employeeId: string) => {
