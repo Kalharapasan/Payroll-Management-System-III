@@ -137,19 +137,41 @@ The system includes 5 sample employees across different departments:
 
 ## Future Enhancements
 
-- Attendance tracking integration
-- Bonus and deduction management
-- Advanced analytics and reporting
-- PDF payslip generation
-- Email notifications
-- Multi-currency support
-- Tax year-end reports
-- Employee self-service portal
-- Bulk operations
-- Data export (CSV, Excel)
-- Chart visualizations
-- Audit logs
 
 ## License
 
 Proprietary - Advanced Payroll Management System 2024
+
+## Local MySQL setup (XAMPP)
+
+This project can run without Supabase by connecting to a local MySQL server via a small Node/Express API.
+
+Steps (Windows PowerShell):
+
+1) Ensure MySQL is running in XAMPP and note credentials (default: user `root`, empty password).
+
+2) Create database and tables:
+
+   - Open phpMyAdmin or the MySQL CLI and execute `server/mysql-schema.sql`.
+
+3) Configure API server env:
+
+   - Copy `server/.env.example` to `server/.env` and adjust values (DB_USER, DB_PASSWORD, etc.).
+
+4) Install API deps and start server:
+
+```
+cd server; npm install; npm run dev
+```
+
+It will serve at http://localhost:5174
+
+5) Start Vite dev server in the root (new terminal):
+
+```
+npm install; npm run dev
+```
+
+Vite dev server proxies `/api` to the API server. If `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` are not set, the frontend will use the MySQL API automatically.
+
+Optional: To explicitly point to a non-proxied API, set `VITE_API_BASE_URL` in a `.env` file at the project root (e.g., `VITE_API_BASE_URL=http://localhost:5174/api`).
