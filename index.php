@@ -108,7 +108,35 @@
     }
 
 
-    
+    $search = trim($_GET['q'] ?? '');
+    $page = max(1, (int)($_GET['page'] ?? 1));
+    $per_page = 10;
+    $offset = ($page - 1) * $per_page;
+
+    $params = [];
+    $where = '';
+    if ($search !== '') {
+        $where = "WHERE employee_name LIKE :q OR reference_no LIKE :q OR postcode LIKE :q OR ni_number LIKE :q OR employer LIKE :q";
+        $params[':q'] = "%$search%";
+    }
+
+    $totalsStmt = $pdo->prepare("SELECT COUNT(*) as total_count, IFNULL(SUM(gross_pay),0) as total_gross, IFNULL(SUM(net_pay),0) as total_net, IFNULL(SUM(deduction),0) as total_ded FROM employees $where");
+    $totalsStmt->execute($params);
+    $totals = $totalsStmt->fetch();
+
+    $listSql = "SELECT * FROM employees $where ORDER BY id DESC LIMIT :limit OFFSET :offset";
+    $stmt = $pdo->prepare($listSql);
+    foreach ($params as $k=>$v) $stmt->bindValue($k, $v);
+    $stmt->bindValue(':limit', (int)$per_page, PDO::PARAM_INT);
+    $stmt->bindValue(':offset', (int)$offset, PDO::PARAM_INT);
+    $stmt->execute();
+    $rows = $stmt->fetchAll();
+
+    $countSql = "SELECT COUNT(*) FROM employees $where";
+    $countStmt = $pdo->prepare($countSql);
+    $countStmt->execute($params);
+    $total_records = (int)$countStmt->fetchColumn();
+    $total_pages = max(1, ceil($total_records / $per_page));
 
 
 ?>
