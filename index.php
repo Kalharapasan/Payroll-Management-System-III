@@ -187,7 +187,40 @@
             <div class="alert alert-danger"><?= s($e) ?></div>
         <?php endforeach; ?>
 
-        
+        <div class="row g-3 mb-3">
+            <div class="col-md-3">
+                <div class="card stat-card">
+                    <div class="card-body">
+                        <small class="text-muted">Total Employees</small>
+                        <div class="h4"><?= (int)$totals['total_count'] ?></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card stat-card">
+                    <div class="card-body">
+                        <small class="text-muted">Total Gross</small>
+                        <div class="h5 monos">£<?= number_format((float)$totals['total_gross'],2) ?></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card stat-card">
+                    <div class="card-body">
+                        <small class="text-muted">Total Net</small>
+                        <div class="h5 monos">£<?= number_format((float)$totals['total_net'],2) ?></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card stat-card">
+                    <div class="card-body">
+                        <small class="text-muted">Total Deductions</small>
+                        <div class="h5 monos">£<?= number_format((float)$totals['total_ded'],2) ?></div>
+                    </div>
+                </div>
+            </div>
+        </div>
 
 
     </div>
