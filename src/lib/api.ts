@@ -1,8 +1,9 @@
 import type { Employee, Payslip } from '../types';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api';
+const USE_SUPABASE = (import.meta.env.VITE_USE_SUPABASE || 'false') === 'true';
 
-export const isSupabaseConfigured = Boolean(
+export const isSupabaseConfigured = USE_SUPABASE && Boolean(
   import.meta.env.VITE_SUPABASE_URL && import.meta.env.VITE_SUPABASE_ANON_KEY
 );
 
