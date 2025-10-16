@@ -34,12 +34,19 @@ async function ensureDatabaseAndSchema() {
     await conn.query(
       `CREATE DATABASE IF NOT EXISTS \`${DB_NAME}\` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;`
     );
-    // Load schema
-    const __filename = fileURLToPath(import.meta.url);
-    const __dirname = path.dirname(__filename);
-    const schemaPath = path.resolve(__dirname, 'mysql-schema.sql');
-    const sql = await fs.readFile(schemaPath, 'utf8');
-    await conn.query(sql);
+    // Check if core tables exist; if not, load schema
+    const [rows] = await conn.query(
+      `SELECT TABLE_NAME FROM information_schema.TABLES WHERE TABLE_SCHEMA = ? AND TABLE_NAME IN ('departments','employees','payslips','attendance')`,
+      [DB_NAME]
+    );
+    const existing = new Set(rows.map((r) => r.TABLE_NAME));
+    if (!existing.has('employees') || !existing.has('departments') || !existing.has('payslips') || !existing.has('attendance')) {
+      const __filename = fileURLToPath(import.meta.url);
+      const __dirname = path.dirname(__filename);
+      const schemaPath = path.resolve(__dirname, 'mysql-schema.sql');
+      const sql = await fs.readFile(schemaPath, 'utf8');
+      await conn.query(sql);
+    }
   } finally {
     await conn.end();
   }
