@@ -250,13 +250,13 @@ function App() {
                           {new Date(payslip.pay_date).toLocaleDateString('en-GB')}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-green-600">
-                          £{payslip.gross_pay.toFixed(2)}
+                          ${payslip.gross_pay.toFixed(2)}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-red-600">
-                          £{payslip.total_deductions.toFixed(2)}
+                          ${payslip.total_deductions.toFixed(2)}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-blue-600">
-                          £{payslip.net_pay.toFixed(2)}
+                          ${payslip.net_pay.toFixed(2)}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <span

@@ -210,21 +210,21 @@ The system uses standardized UK-based payroll calculations:
 ### 📝 Example Calculation
 
 For an employee with:
-- Basic Salary: £3,000
-- Inner City Allowance: £200
-- Overtime: 10 hours @ £25/hour
-- Bonus: £100
+- Basic Salary: $3,000
+- Inner City Allowance: $200
+- Overtime: 10 hours @ $25/hour
+- Bonus: $100
 
 ```
-Gross Pay = £3,000 + £200 + (10 × £25) + £100 = £3,550
+Gross Pay = $3,000 + $200 + (10 × $25) + $100 = $3,550
 
-Tax          = £3,550 × 9%   = £319.50
-Pension      = £3,550 × 5.5% = £195.25
-Student Loan = £3,550 × 2.5% = £88.75
-NI Payment   = £3,550 × 2.3% = £81.65
+Tax          = $3,550 × 9%   = $319.50
+Pension      = $3,550 × 5.5% = $195.25
+Student Loan = $3,550 × 2.5% = $88.75
+NI Payment   = $3,550 × 2.3% = $81.65
 
-Total Deductions = £685.15
-Net Pay = £3,550 - £685.15 = £2,864.85
+Total Deductions = $685.15
+Net Pay = $3,550 - $685.15 = $2,864.85
 ```
 
 ### 🔒 Security Features
