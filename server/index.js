@@ -195,10 +195,24 @@ app.put('/api/employees/:id', async (req, res) => {
   try {
     const { id } = req.params;
     const updated_at = now();
-    const fields = {
-      ...req.body,
-      updated_at,
-    };
+    
+    // Define valid employee table columns
+    const validColumns = new Set([
+      'id', 'employee_name', 'email', 'address', 'postcode', 'gender',
+      'reference_no', 'department_id', 'tax_period', 'tax_code', 'ni_number',
+      'ni_code', 'student_ref', 'basic_salary', 'employment_status',
+      'hire_date', 'termination_date', 'avatar_url', 'updated_at'
+    ]);
+    
+    // Filter out invalid fields (like nested 'department' object)
+    const fields = {};
+    for (const [key, value] of Object.entries(req.body)) {
+      if (validColumns.has(key)) {
+        fields[key] = value;
+      }
+    }
+    fields.updated_at = updated_at;
+    
     // Build dynamic SET clause
     const keys = Object.keys(fields);
     if (!keys.length) return res.status(400).json({ error: 'No fields to update' });
@@ -328,7 +342,25 @@ app.put('/api/payslips/:id', async (req, res) => {
   try {
     const { id } = req.params;
     const updated_at = now();
-    const fields = { ...req.body, updated_at };
+    
+    // Define valid payslip table columns
+    const validColumns = new Set([
+      'id', 'employee_id', 'pay_date', 'period_start', 'period_end',
+      'inner_city', 'basic_salary', 'overtime', 'bonuses', 'gross_pay',
+      'taxable_pay', 'pensionable_pay', 'student_loan', 'ni_payment',
+      'total_deductions', 'net_pay', 'tax_todate', 'pension_todate',
+      'status', 'notes', 'updated_at'
+    ]);
+    
+    // Filter out invalid fields (like nested 'employee' object)
+    const fields = {};
+    for (const [key, value] of Object.entries(req.body)) {
+      if (validColumns.has(key)) {
+        fields[key] = value;
+      }
+    }
+    fields.updated_at = updated_at;
+    
     const keys = Object.keys(fields);
     if (!keys.length) return res.status(400).json({ error: 'No fields to update' });
     const setSql = keys.map((k) => `${k} = ?`).join(', ');
